@@ -76,7 +76,7 @@ namespace cph
 
 	template<class T>
 	barcode_collection<T> lw_persistent_homology(const finite_metric_space<T> & metric_space, const std::size_t dimension, const T max_filtration_value,
-			const std::size_t landmark_set_size = 50, const std::size_t maxmin_samples = 100)
+			const std::size_t landmark_set_size, const std::size_t maxmin_samples)
 	{
 		std::vector<std::size_t> landmark_selection;
 

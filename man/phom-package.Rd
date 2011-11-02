@@ -15,7 +15,7 @@ More information may be found at \url{http://comptop.stanford.edu}.
 \tabular{ll}{
 Package: \tab phom\cr
 Type: \tab Package\cr
-Version: \tab 1.0.1\cr
+Version: \tab 1.0.2\cr
 Date: \tab 11/5/11\cr
 License: \tab BSD\cr
 LazyLoad: \tab yes\cr
