@@ -23,12 +23,12 @@
  * on Rcpp-devel for a misuse of RcppExport
  */
 
-RcppExport SEXP default_euclidean_phom(SEXP _X, SEXP _dimension, SEXP _max_filtration_value, SEXP _metric_type, SEXP _p);
-RcppExport SEXP default_metric_phom(SEXP _X, SEXP _dimension, SEXP _max_filtration_value);
-RcppExport SEXP vr_euclidean_phom(SEXP _X, SEXP _dimension, SEXP _max_filtration_value, SEXP _metric_type, SEXP _p);
-RcppExport SEXP vr_metric_phom(SEXP _X, SEXP _dimension, SEXP _max_filtration_value);
-RcppExport SEXP lw_euclidean_phom(SEXP _X, SEXP _dimension, SEXP _max_filtration_value, SEXP _landmark_set_size, SEXP _maxmin_sample_size, SEXP _metric_type, SEXP _p);
-RcppExport SEXP lw_metric_phom(SEXP _X, SEXP _dimension, SEXP _max_filtration_value, SEXP _landmark_set_size, SEXP _maxmin_sample_size);
+RcppExport SEXP default_euclidean_phom(SEXP _matrix, SEXP _dimension, SEXP _max_filtration_value, SEXP _metric_type, SEXP _power);
+RcppExport SEXP default_metric_phom(SEXP _matrix, SEXP _dimension, SEXP _max_filtration_value);
+RcppExport SEXP vr_euclidean_phom(SEXP _matrix, SEXP _dimension, SEXP _max_filtration_value, SEXP _metric_type, SEXP _power);
+RcppExport SEXP vr_metric_phom(SEXP _matrix, SEXP _dimension, SEXP _max_filtration_value);
+RcppExport SEXP lw_euclidean_phom(SEXP _matrix, SEXP _dimension, SEXP _max_filtration_value, SEXP _landmark_set_size, SEXP _maxmin_sample_size, SEXP _metric_type, SEXP _power);
+RcppExport SEXP lw_metric_phom(SEXP _matrix, SEXP _dimension, SEXP _max_filtration_value, SEXP _landmark_set_size, SEXP _maxmin_sample_size);
 
 
 

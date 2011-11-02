@@ -16,16 +16,16 @@
 #include <Rcpp.h>
 #include <vector>
 
-SEXP default_euclidean_phom(SEXP _X, SEXP _dimension, SEXP _max_filtration_value, SEXP _metric_type, SEXP _p)
+SEXP default_euclidean_phom(SEXP _matrix, SEXP _dimension, SEXP _max_filtration_value, SEXP _metric_type, SEXP _power)
 {
-	Rcpp::NumericMatrix X_R(_X);
+	Rcpp::NumericMatrix X_R(_matrix);
 
 	int dimension = Rcpp::as<int>(_dimension);
 	double max_filtration_value = Rcpp::as<double>(_max_filtration_value);
 	cph::basic_matrix<double> * X = new cph::basic_matrix<double>(X_R.nrow(), X_R.ncol());
 
 	cph::metric metric_type = (cph::metric) Rcpp::as<int>(_metric_type);
-	double p = Rcpp::as<double>(_p);
+	double p = Rcpp::as<double>(_power);
 
 	for (int i(0); i < X_R.nrow(); i++)
 	{
@@ -54,9 +54,9 @@ SEXP default_euclidean_phom(SEXP _X, SEXP _dimension, SEXP _max_filtration_value
 	return endpoint_matrix_R;
 }
 
-SEXP default_metric_phom(SEXP _X, SEXP _dimension, SEXP _max_filtration_value)
+SEXP default_metric_phom(SEXP _matrix, SEXP _dimension, SEXP _max_filtration_value)
 {
-	Rcpp::NumericMatrix X_R(_X);
+	Rcpp::NumericMatrix X_R(_matrix);
 
 	int dimension = Rcpp::as<int>(_dimension);
 	double max_filtration_value = Rcpp::as<double>(_max_filtration_value);
@@ -89,16 +89,16 @@ SEXP default_metric_phom(SEXP _X, SEXP _dimension, SEXP _max_filtration_value)
 	return endpoint_matrix_R;
 }
 
-SEXP vr_euclidean_phom(SEXP _X, SEXP _dimension, SEXP _max_filtration_value, SEXP _metric_type, SEXP _p)
+SEXP vr_euclidean_phom(SEXP _matrix, SEXP _dimension, SEXP _max_filtration_value, SEXP _metric_type, SEXP _power)
 {
-	Rcpp::NumericMatrix X_R(_X);
+	Rcpp::NumericMatrix X_R(_matrix);
 
 	int dimension = Rcpp::as<int>(_dimension);
 	double max_filtration_value = Rcpp::as<double>(_max_filtration_value);
 	cph::basic_matrix<double> * X = new cph::basic_matrix<double>(X_R.nrow(), X_R.ncol());
 
 	cph::metric metric_type = (cph::metric) Rcpp::as<int>(_metric_type);
-	double p = Rcpp::as<double>(_p);
+	double p = Rcpp::as<double>(_power);
 
 	for (int i(0); i < X_R.nrow(); i++)
 	{
@@ -127,9 +127,9 @@ SEXP vr_euclidean_phom(SEXP _X, SEXP _dimension, SEXP _max_filtration_value, SEX
 	return endpoint_matrix_R;
 }
 
-SEXP vr_metric_phom(SEXP _X, SEXP _dimension, SEXP _max_filtration_value)
+SEXP vr_metric_phom(SEXP _matrix, SEXP _dimension, SEXP _max_filtration_value)
 {
-	Rcpp::NumericMatrix X_R(_X);
+	Rcpp::NumericMatrix X_R(_matrix);
 
 	int dimension = Rcpp::as<int>(_dimension);
 	double max_filtration_value = Rcpp::as<double>(_max_filtration_value);
@@ -162,9 +162,9 @@ SEXP vr_metric_phom(SEXP _X, SEXP _dimension, SEXP _max_filtration_value)
 	return endpoint_matrix_R;
 }
 
-SEXP lw_euclidean_phom(SEXP _X, SEXP _dimension, SEXP _max_filtration_value, SEXP _landmark_set_size, SEXP _maxmin_sample_size, SEXP _metric_type, SEXP _p)
+SEXP lw_euclidean_phom(SEXP _matrix, SEXP _dimension, SEXP _max_filtration_value, SEXP _landmark_set_size, SEXP _maxmin_sample_size, SEXP _metric_type, SEXP _power)
 {
-	Rcpp::NumericMatrix X_R(_X);
+	Rcpp::NumericMatrix X_R(_matrix);
 
 	int dimension = Rcpp::as<int>(_dimension);
 	double max_filtration_value = Rcpp::as<double>(_max_filtration_value);
@@ -173,7 +173,7 @@ SEXP lw_euclidean_phom(SEXP _X, SEXP _dimension, SEXP _max_filtration_value, SEX
 	cph::basic_matrix<double> * X = new cph::basic_matrix<double>(X_R.nrow(), X_R.ncol());
 
 	cph::metric metric_type = (cph::metric) Rcpp::as<int>(_metric_type);
-	double p = Rcpp::as<double>(_p);
+	double p = Rcpp::as<double>(_power);
 
 	for (int i(0); i < X_R.nrow(); i++)
 	{
@@ -203,9 +203,9 @@ SEXP lw_euclidean_phom(SEXP _X, SEXP _dimension, SEXP _max_filtration_value, SEX
 	return endpoint_matrix_R;
 }
 
-SEXP lw_metric_phom(SEXP _X, SEXP _dimension, SEXP _max_filtration_value, SEXP _landmark_set_size, SEXP _maxmin_sample_size)
+SEXP lw_metric_phom(SEXP _matrix, SEXP _dimension, SEXP _max_filtration_value, SEXP _landmark_set_size, SEXP _maxmin_sample_size)
 {
-	Rcpp::NumericMatrix X_R(_X);
+	Rcpp::NumericMatrix X_R(_matrix);
 
 	int dimension = Rcpp::as<int>(_dimension);
 	double max_filtration_value = Rcpp::as<double>(_max_filtration_value);

@@ -1,2 +1,3 @@
+import(Rcpp)
 useDynLib(phom)
 exportPattern("^[[:alpha:]]+")
