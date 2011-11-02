@@ -1,0 +1,570 @@
+\documentclass[fontsize=10pt,paper=letter,BCOR=-6mm]{scrartcl}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\normalfont
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\newcommand*\q{\textquotesingle}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{xcolor}
+\usepackage{ifpdf}
+  \ifpdf
+    \newcommand*\driver{}
+  \else
+    \newcommand*\driver{dvipdfmx}
+  \fi
+
+\usepackage[%
+  pdftitle={phom manual},
+  pdfauthor={Andrew Tausz},
+%  pdfsubject={},
+  pdfdisplaydoctitle=true,
+%  pdfduplex=DuplexFlipLongEdge,
+  pdfstartview=FitH,
+  colorlinks=True,
+  pdfhighlight=/I,
+%  pdfborder={0 0 1},
+%  linkbordercolor={1 .8 .8},
+%  citebordercolor={.5 .9 .5},
+%  urlbordercolor={.5 .7 1},
+%  linkcolor={blue},
+  citecolor={blue},
+  urlcolor={blue!80!black},
+  linkcolor={red!80!black},
+%  runcolor={blue},
+%  filecolor={blue},
+  pdfpagemode=UseOutlines,
+  bookmarksopen=true,
+  bookmarksopenlevel=1,
+  bookmarksdepth=2,
+  breaklinks=true,
+  unicode=true,
+  \driver
+]{hyperref}
+% Optimize the PDF targets and make the PDF file smaller
+\ifpdf\RequirePackage{hypdestopt}\fi
+
+\usepackage{typearea}
+\usepackage{tikz}
+
+\textheight = 8.5in
+\headheight = -0.2in
+\oddsidemargin = -0.0in
+\evensidemargin = -0.0in 
+\textwidth = 6.5in
+\itemsep = 0in
+\parsep = 0in
+
+\newcommand*\plot{\href{http://stat.ethz.ch/R-manual/R-patched/library/graphics/html/plot.html}{\texttt{plot}}}
+\newcommand*\rcpp{\href{http://stat.ethz.ch/CRAN/web/packages/Rcpp/}{\texttt{Rcpp}}}
+
+\newcommand{\image}{\operatorname{im}}
+\newcommand{\preimage}{\operatorname{pre}}
+\newcommand{\Hom}{\operatorname{Hom}}
+\newcommand{\Ext}{\operatorname{Ext}}
+
+\newcommand{\VR}{\operatorname{VR}}
+\newcommand{\LW}{\operatorname{LW}}
+
+\newcommand*{\methodslabel}[1]{
+  \hbox to \textwidth{\hspace{\labelsep}
+  \noindent \textit{#1}
+  \hskip-\labelsep\hfill}
+}
+
+\begin{document}
+
+\setkeys{Gin}{width=0.5\textwidth}
+
+
+%\VignetteIndexEntry{User's manual}
+\title{The \textit{phom} package: User's manual}
+\author{\href{http://www.stanford.edu/~atausz}{Andrew Tausz}}
+\date{\today}
+\subtitle{Version 1.0.0}
+\maketitle
+
+\makeatletter
+\renewenvironment{quotation}{%
+  \list{}{\listparindent 1em%
+    \itemindent    \listparindent
+    \leftmargin2.5em
+    \rightmargin   \leftmargin
+    \parsep        \z@ \@plus\p@
+  }%
+  \item\relax
+}{%
+  \endlist
+}
+\makeatother
+\begin{abstract}\noindent\small
+The \texttt{phom} package is an R package that computes the persistent homology of geometric datasets. 
+Persistent homology is an algebraic tool that allows one to understand the topological characteristics of a given
+dataset across all spatial scales. It may be thought of as an extension of clustering to higher-dimensional homological properties. The
+purpose of this package is to make these tools available to the statistical community.
+\end{abstract}
+
+\noindent The \texttt{phom} package may be cited as follows:
+\begin{quote}
+Andrew Tausz, \textit{phom: Persistent Homology in R}, Version 1.0.0, 2011. Available at CRAN \url{http://cran.r-project.org}.
+\end{quote}
+
+\tableofcontents
+
+\section{Introduction to Persistent Homology}
+
+Given a set of points, $X$, we are interested in understanding the shape of this dataset. A recently developed technique which addresses this
+problem is known as \emph{persistent homology}, which allows one to compute a multi-scale decomposition of the topological features of the
+dataset. The theory of persistent homology originates in standard (simplicial) homology from algebraic topology. Roughly speaking, simplicial
+homology defines a set of algebraic invariants of simplicial complexes which describe the topological characteristics of the shape. 
+
+We refer the reader to \cite{Carlsson_09} for a very readable introduction to the field of topological data analysis as well as the computational tasks involved.
+Further computational details are available in \cite{Carlsson_04}. Standard references on algebraic topology and its algebraic foundations include
+\cite{HATCHER, Munkres, Weibel, Maclane, Rotman}.
+
+For example, if $X = S^1$, the unit circle, then $X$ has homology groups $H_0(X) = H_1(X) = \mathbb{Z}$, and $H_i(X) = 0$ for $i > 1$. Informally
+speaking, $H_0$ counts the number of connected components of a topological space, and $H_1$ counts the number of 1-dimensional holes. Similarly,
+the higher homology groups encode information about higher-dimensional voids. On slightly more exotic spaces, other topological invariants such as 
+(un)orientability may be reflected in the torsion components of the homology groups. We refer to the rank of the $i$-th
+homology group (the number of $\mathbb{Z}$ factors) as the $i$-th Betti number, denoted by $\beta_i$. 
+
+Persistent homology computes topological invariants of filtered sequences of simplicial complexes. The relevance of this to data-analysis is the following:
+Conventional topological invariants are unsuitable for many application purposes since they are simultaneously too sensitive, and too weak. They are too 
+``weak'' because of their homotopy invariance. This means that the underlying shape can be stretched in any way (as long as it is not ripped) without
+changing its homology groups. For example, since the two shapes below are homeomorphic, there is no topological invariant that will distinguish them,
+even though there are visible geometric differences.
+
+\begin{center}
+\begin{tikzpicture}
+	\draw (0, 0) ellipse (3 and 0.2);
+	\draw (6, 0) circle (1);
+\end{tikzpicture}
+\end{center}
+
+Similarly, the following figure illustrates what is meant by (conventional) homology being unstable. An arbitrarily small perturbation may have the effect of changing the 
+homology. The figure on the right has $\beta_1 = 1$, whereas the figure on the left has $\beta_1 = 2$.
+
+\begin{center}
+\begin{tikzpicture}
+	\draw (0, 0) circle (1);
+	\draw (1.1, 0) circle (0.1);
+	\draw (6, 0) circle (1);
+\end{tikzpicture}
+\end{center}
+
+Persistent homology, on the other hand, is an invariant of \emph{filtered} spaces. By this, we mean a collection of topological spaces (simplicial complexes in our case)
+$$K_1 \hookrightarrow K_2 \hookrightarrow \ldots \hookrightarrow K_n$$
+which are nested. An example of such a filtered simplicial complex is seen in Figure \ref{fig:lwtorus}. In this figure we can see that the complex starts out as a discrete 
+set of points, and points are joined together as we increase a scale parameter. Section \ref{section:complexes} describes such constructions in more detail. 
+
+Fixing a field, $\mathbb{F}$, we may apply the $p$-dimensional homology functor, $H_p(-, \mathbb{F})$ to get the sequence of $\mathbb{F}$-vector spaces
+with associated maps:
+$$H_p(K_1, \mathbb{F}) \rightarrow H_p(K_2, \mathbb{F}) \rightarrow \ldots \rightarrow H_p(K_n, \mathbb{F})$$
+It turns out that algebraically, such sequences may be decomposed into a multiset of intervals, $\{[a_i, b_i) \subseteq \{1, \ldots, n, \infty \} \}$. We do not delve into the
+algebraic details here, but merely assure the reader that significant effort has gone into placing the above statements on sound mathematical theory. 
+The presence of the interval $[a, b)$ in dimension $p$ indicates the presence of a $p$-dimensional homology class (something we informally call a topological feature) that
+is born at index $a$, and that dies at index $b$. For example, in dimension 0 this may be a connected component that is present at a given length scale, but that ends once
+it is merged with other connected components as we increase the length-scale. Intuitively, long intervals correspond with significant features, whereas short
+intervals may be considered to be noise. We refer to this multiset of intervals as a barcode.
+
+For example, computing the persistent homology of the figure
+\begin{center}
+\begin{tikzpicture}
+	\draw[color=blue] (0, 0) circle (1);
+	\draw[color=orange] (1.1, 0) circle (0.1);
+	\draw[color=green] (-1.1, 0) circle (0.1);
+\end{tikzpicture}
+\end{center}
+gives the interval decomposition which may be represented by the following barcode plot. Note that the vertical positioning does not have any relevance.
+\begin{center}
+\begin{tikzpicture}[domain=0:4]
+	%\draw[very thin,color=gray] (-0.1,-0.1) grid (3.9,3.9);
+	\draw[->] (0,0) -- (4,0);
+	\draw[->] (0,0) -- (0,4);
+	\draw[-,color=blue,line width=2pt] (0,1) -- (4,1);
+	\draw[-,color=orange,line width=2pt] (0,2) -- (0.5,2);
+	\draw[-,color=green,line width=2pt] (0,3) -- (0.5,3);
+\end{tikzpicture}
+\end{center}
+
+Alternatively, we may draw a \emph{persistence diagram} which is a set of points in the plane in which the $x$-coordinate represents the start of an interval, and the $y$-coordinate
+represents the ending point.
+\begin{center}
+\begin{tikzpicture}[domain=0:4]
+	%\draw[very thin,color=gray] (-0.1,-0.1) grid (3.9,3.9);
+	\draw[->] (0,0) -- (4,0);
+	\draw[->] (0,0) -- (0,4);
+	\fill[color=blue] (0, 3.8) circle(2pt);
+	\fill[color=orange] (0, 0.5) circle(2pt);
+	\fill[color=green] (0.2, 0.5) circle(2pt);
+\end{tikzpicture}
+\end{center}
+
+
+\section{Generating Filtered Complexes from Geometric Data}
+\label{section:complexes}
+
+The computation of persistent homology is a two-stage process. The two main steps are:
+\begin{itemize}
+\item Construct a filtered simplicial complex given a geometric dataset
+\item Compute the persistent homology of the filtered complex
+\end{itemize}
+
+The \texttt{phom} package exposes two ways of constructing a filtered complex on a metric space, $(\mathcal{X}, d)$.
+
+\subsection{The Vietoris-Rips Construction}
+We define the filtered complex $\VR(\mathcal{X}, r)$ as follows. Suppose that the points of $\mathcal{X}$ are $\{x_1, ... x_N\}$, where $N = |\mathcal{X}|$. The Vietoris-Rips complex is constructed as follows:
+
+\begin{itemize}
+\item {\bf Add points:} For all points $x \in \mathcal{X}$, $x \in \VR_0(\mathcal{X}, 0)$
+\item {\bf Add 1-skeleton:} The 1-simplex $[x_i, x_j]$ is in $\VR_1(\mathcal{X}, r)$ iff $d(x_i, x_j) \leq r$
+\item {\bf Expansion:} We define $\VR(\mathcal{X}, r)$ to be the maximal simplicial complex containing $\VR_1(\mathcal{X}, r)$. That is, a simplex $[x_0, .. x_k]$ is in $\VR(\mathcal{X}, r)$ if and only if all of its edges are in $\VR_1(\mathcal{X}, r)$.
+\end{itemize}
+
+An extensive discussion on algorithms for computing the Vietoris-Rips complex can be found in \cite{Zomorodian}. The \texttt{phom} implementation is based on the results of this paper.
+
+\subsection{The Lazy-Witness Construction}
+The fundamental idea behind the lazy-witness construction is that a relatively small subset of a point cloud can accurately describe the shape of the dataset. This construction has the advantage of being more resistant to noise than the Vietoris-Rips construction. An extensive discussion about it can be found in \cite{Witness}. 
+
+The lazy-witness construction starts with a selection of landmark points, $\mathcal{L} \subset \mathcal{X}$ with $|\mathcal{L}| = L$. One possibility is to simply choose a random subset of $\mathcal{X}$. Another possibility is to perform a sequential max-min selection: An initial point $l_0$ is selected, and then we inductively select the point $l_k$ which maximizes the minimum distance to all previously generated points. This max-min construction tends to produce more evenly spaced points than the random selection. Again we refer the reader to \cite{Witness} for a more detailed discussion, as well as empirical results supporting these claims.
+
+This construction is parameterized by a value $\nu$, which most commonly takes the values 0, 1, or 2. We also define the distance matrix $D$ to contain the pairwise distances between the points in $\mathcal{X}$. 
+
+\begin{itemize}
+\item {\bf Define $m_i$:} If $\nu = 0$, let $m_i = 0$, otherwise, define $m_i$ to be the $\nu$-th smallest entry in the $i$-th column of D
+\item {\bf Add points:} For all points $l \in \mathcal{L}$, $l \in \LW_0(\mathcal{X}, 0, \nu)$
+\item {\bf Add 1-skeleton:} The 1-simplex $[l_i, l_j]$ is in $\LW_1(\mathcal{X}, r, \nu)$ iff there exists an $x \in \mathcal{X}$ such that $\max(d(l_i, x), d(l_j, x)) \leq r + m_i$.
+\item {\bf Expansion:} We define $\LW(\mathcal{X}, r, \nu)$ to be the maximal simplicial complex containing $\LW_1(\mathcal{X}, r, \nu)$. 
+\end{itemize}
+
+An example of a lazy-witness complex on random points on a torus may be found in Figure \ref{fig:lwtorus}. We remind the reader that this is a set of snapshots of a continuously varying set of nested spaces.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.9\textwidth]{tori_small.png}
+\caption{Example of a lazy-witness complex generated from randomly sampled points on a torus. This is an example of a filtered simplicial complex. Note that the complex starts out
+as a discrete set of points, and as we increase the scale parameter, points are joined together with nearby points. Higher simplices arise when groups of points are mutually close together.} \label{fig:lwtorus}
+\end{figure}
+
+
+\section{Homology Computation}
+
+At the core of the \texttt{phom} library is the set of algorithms that actually compute the homology of a filtered chain complex. 
+Key references to background material regarding these algorithms can be found in \cite{Carlsson_04, Dualities}. 
+Although we do not describe them in detail here, we note that the algorithms for computing persistent homology can be formulated as a matrix decomposition problem. 
+The fundamental reason for this is the equivalence of category of persistent vector spaces of finite type, and the category finitely generated graded modules over $\mathbb{F}[t]$. 
+This correspondence is described in \cite{Carlsson_04}. 
+
+The homology algorithms are built in a way that is optimized for chain complexes implemented as \emph{streams}. 
+By this we mean that a filtered chain complex is represented by a sequence of basis elements that are produced in increasing order of their filtration indices. 
+Enforcing the constraint that all complexes must be implemented this way allows \texttt{phom} to perform the matrix decomposition operations in an efficient online fashion.
+
+\section{Methods}
+
+The \texttt{phom} package contains a main method for computing persistent homology, \texttt{pHom}, as well as two for 
+visualizing the results of such a computation, \texttt{plotPersistenceDiagram} and \texttt{plotBarcodeDiagram}. 
+
+\subsection{\texttt{pHom}}
+
+\subsubsection*{Description}
+
+This function computes persistent homology on a given dataset. This is a two-step process 
+which involves: (1) creating a filtered simplicial complex on the dataset, and (2) computing
+the persistent homology of the filtered complex.
+
+It outputs a matrix with three columns. Each row in the output 
+matrix corresponds to a persistence interval. The first column stores the dimension of the 
+interval, the second stores the starting point, and the third stores the ending point.
+
+The method provides two ways to construct a filtered simplicial complex on the data points:
+the Vietoris-Rips construction, and the lazy-witness construction.
+
+Note that the Vietoris-Rips construction can produce complexes that are very large. To circumvent this,
+the witness construction may be used. This method produces complexes that are significantly smaller.
+
+The argument \texttt{mode} is used to select between the two different constructions, by either specififying 
+\texttt{"vr"} or \texttt{"lw"}. 
+
+\subsubsection*{Usage}
+
+\texttt{pHom}\textit{(X, dimension, max\_filtration\_value, mode = ``vr'', metric = ``euclidean'', p = 2, landmark\_set\_size = 2 * ceiling(sqrt(length(X))), maxmin\_samples = min(1000, length(X)))}
+
+
+\subsubsection*{Arguments}
+
+\methodslabel{X}
+\noindent A matrix which has one of the two following interpretations. In the case where \texttt{metric = "distance\_matrix"}, \texttt{X} is required to be a
+ square matrix whose entries indicate the distance between two points. The number of rows (and columns) equals the number of points in the dataset.
+In the case where \texttt{metric} is something other than \texttt{"distance\_matrix"}, \texttt{X} is required to be a matrix in which the rows are points in Euclidean
+space. The number of columns is the dimensionality of the dataset. Note that for different choices of the \texttt{metric} argument, the points will
+be endowed with different metrics.
+
+
+\methodslabel{dimension}
+\noindent The maximum dimension to compute persistent homology to.
+
+\methodslabel{max\_filtration\_value}
+\noindent The maximum filtration value to use in constructing the filtered complex.
+
+\methodslabel{mode}
+\noindent This indicates the type of filtration to use. The two possible choices are \texttt{"vr"} (default) and \texttt{"lw"}.
+The choice \texttt{"vr"} indicates that the Vietoris-Rips filtration will be used, and the choice \texttt{"lw"} indicates
+that the lazy-witness construction will be used. For Vietoris-Rips filtrations, the parameters \texttt{landmark\_set\_size} and
+\texttt{maxmin\_samples} are ignored. 
+
+\methodslabel{metric}
+\noindent This indicates the type of metric that will be used. Valid choices include the following: 
+\texttt{"distance\_matrix", "euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"}.
+When \texttt{"distance\_matrix"} is specified, the paramter \texttt{"X"} is interpreted as a distance matrix. Otherwise,
+\texttt{"X"} is regarded as a set of points, where each row is one point.
+
+\methodslabel{p}
+\noindent This is the value of the power to use in the minkowski metric.
+
+\methodslabel{landmark\_set\_size}
+\noindent The number of points to include in the landmark set. A sensible value for this is in between 20 and 100. The default value is taken to be $2 \sqrt{|X|}$. 
+This parameter is only relevant for the lazy-witness filtration.
+
+\methodslabel{maxmin\_samples}
+\noindent The number of samples to use when performing the maxmin selection. The default value is taken to be $\min(|X|, 1000)$.
+This parameter is only relevant for the lazy-witness filtration.
+
+
+\subsection{\texttt{plotPersistenceDiagram}}
+\label{subsection:plotPersistenceDiagram}
+
+\subsubsection*{Description}
+
+This function plots a persistence diagram from a given set of intervals. 
+
+\subsubsection*{Usage}
+
+\texttt{plotPersistenceDiagram}\textit{(intervals, max\_dim, max\_f, title="Persistence Diagram")}
+
+\subsubsection*{Arguments}
+
+\methodslabel{intervals}
+\noindent A matrix with three columns that specifies the persistence intervals.
+Entries in the first column indicate the dimension of an interval. The entries in the
+second and third columns indicate the start and end points of the intervals, respectively.
+The function \texttt{pHom} produces outputs that are in this form.
+
+\methodslabel{max\_dim}
+\noindent The maximum dimension to plot.
+
+\methodslabel{max\_f}
+\noindent The maximum filtration value to use in the persistence diagram.
+
+\methodslabel{title}
+\noindent The title on the persistence diagram.
+
+\subsection{\texttt{plotBarcodeDiagram}}
+
+\subsubsection*{Description}
+
+This function plots a set of intervals as a set of line-segments. In comparison the function \texttt{plotPersistenceDiagram}
+described in section \ref{subsection:plotPersistenceDiagram} plots a set of intervals as points in the plane corresponding 
+to their start and end points.
+
+\subsubsection*{Usage}
+
+\texttt{plotBarcodeDiagram}\textit{(intervals, dimension, max\_f, title="Persistence Diagram")}
+
+\subsubsection*{Arguments}
+
+\methodslabel{intervals}
+\noindent A matrix with three columns that specifies the persistence intervals.
+Entries in the first column indicate the dimension of an interval. The entries in the
+second and third columns indicate the start and end points of the intervals, respectively.
+The function \texttt{pHom} produces outputs that are in this form.
+
+\methodslabel{dimension}
+\noindent The dimension to plot intervals for. Unlike \texttt{plotPersistenceDiagram}, this function
+only plots intervals for one dimension, and not all of them.
+
+\methodslabel{max\_f}
+\noindent The maximum filtration value to use in the diagram.
+
+\methodslabel{title}
+\noindent The title on the barcode diagram.
+
+
+\section{Examples}
+
+
+\subsection{Mixture of Two Gaussians}
+
+This example computes the 0-dimensional persistent homology for a set of points generated by a mixture of two Gaussians. 
+We expect that the persistent homology will indicate two clusters. Note that the $l_1$ (manhattan) norm is used in this example.
+
+<<ex1>>=
+library(phom)
+
+N <- 50
+
+x1 <- rnorm(N) * 0.1
+y1 <- rnorm(N) * 0.1
+X1 <- t(as.matrix(rbind(x1, y1)))
+
+x2 <- rnorm(N) * 0.1 + 0.5
+y2 <- rnorm(N) * 0.1 + 0.5
+X2 <- t(as.matrix(rbind(x2, y2)))
+
+x <- cbind(x1, x2)
+y <- cbind(y1, y2)
+
+X <- as.matrix(rbind(X1, X2))
+
+max_dim <- 0
+max_f <- 0.8
+
+intervals <- pHom(X, max_dim, max_f, metric="manhattan")
+
+@
+
+To plot the dataset, we use the following command. The resulting plot is shown in Figure \ref{fig:plot1}.
+
+<<label=fig1plot,include=FALSE>>=
+plot(X)
+@
+
+\begin{figure}
+\begin{center}
+<<label=fig1,fig=TRUE,echo=FALSE>>=
+<<fig1plot>>
+@
+\end{center}
+\caption{Mixture of two Gaussians dataset}
+\label{fig:plot1}
+\end{figure}
+
+To plot, we use the function \texttt{plotBarcodeDiagram} as follows. The resulting plot is shown in Figure \ref{fig:pd1}. 
+In this figure, we can see that there are two prominent intervals, suggesting that there are two clusters.
+
+<<label=pd1plot,include=FALSE>>=
+plotBarcodeDiagram(intervals, max_dim, max_f, title="")
+@
+
+
+\begin{figure}
+\begin{center}
+<<label=pd1,fig=TRUE,echo=FALSE>>=
+<<pd1plot>>
+@
+\end{center}
+\caption{Dimension 0 intervals for mixture of Gaussians example}
+\label{fig:pd1}
+\end{figure}
+
+
+
+
+\subsection{Rips Filtration on Points on a Circle}
+
+As a first example, let us consider generating uniformly distributed points on a circle. The default Euclidean norm
+is used in this example.
+
+<<ex2>>=
+library(phom)
+
+t <- 2 * pi * runif(100)
+x <- cos(t); y <- sin(t)
+X <- t(as.matrix(rbind(x, y)))
+
+max_dim <- 1
+max_f <- 0.6
+
+intervals <- pHom(X, max_dim, max_f)
+@
+
+To plot the dataset, we use the following command. The resulting plot is shown in Figure \ref{fig:plot2}.
+
+<<label=fig2plot,include=FALSE>>=
+plot(X)
+@
+
+\begin{figure}
+\begin{center}
+<<label=fig2,fig=TRUE,echo=FALSE>>=
+<<fig2plot>>
+@
+\end{center}
+\caption{Uniform points on $S^1$}
+\label{fig:plot2}
+\end{figure}
+
+
+For this example, we use the function \texttt{plotPersistenceDiagram} to visualize the intervals. The resulting plot is shown in Figure \ref{fig:pd2}.
+Note that we can see that there are two significant generators - one in dimension 0 and one in dimension 1.
+
+<<label=pd2plot,include=FALSE>>=
+plotPersistenceDiagram(intervals, max_dim, max_f, 
+	title="Random Points on S^1 with l_2 Norm")
+@
+
+
+\begin{figure}
+\begin{center}
+<<label=pd2,fig=TRUE,echo=FALSE>>=
+<<pd2plot>>
+@
+\end{center}
+\caption{Persistence Diagram for uniformly chosen points on $S^1$}
+\label{fig:pd2}
+\end{figure}
+
+
+\subsection{Lazy-Witness Filtration for Points on $S^3$}
+
+In this example, we generate points on $S^3$. The lazy-witness construction is used to reduce the
+initial dataset of size 5,000 to one of size 40. 
+
+<<ex3>>=
+library(phom)
+
+sphere_points <- function(n, d) {
+	points <- matrix(rnorm(n*d), nrow = n, ncol = d)
+	L <- apply(points, MARGIN = 1,
+		   FUN = function(x){sqrt(sum(x*x))})
+	D <- diag(1 / L)
+	U <- D %*% points
+	U
+}
+
+n <- 5000
+d <- 4
+X <- as.matrix(sphere_points(n, d))
+
+max_dim <- d - 1
+max_f <- 0.9
+landmark_set_size <- 40
+maxmin_samples <- 1000
+
+intervals <- pHom(X, max_dim, max_f, mode="lw", metric="euclidean", 
+	landmark_set_size=landmark_set_size, maxmin_samples=maxmin_samples)
+@
+
+Of course, since it is not possible to visualize the 3-sphere we do not include a plot of the original dataset. The resulting persistence
+diagram may be found in Figure \ref{fig:pd3}.
+
+
+<<label=pd3plot,include=FALSE>>=
+plotPersistenceDiagram(intervals, max_dim, max_f, 
+	title="Random Points on S^3")
+@
+
+\begin{figure}
+\begin{center}
+<<label=pd3,fig=TRUE,echo=FALSE>>=
+<<pd3plot>>
+@
+\end{center}
+\caption{Persistence Diagram for lazy-witness filtration for points on $S^3$}
+\label{fig:pd3}
+\end{figure}
+
+\bibliographystyle{amsalpha}
+\bibliography{biblio}
+
+\end{document}

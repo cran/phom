@@ -1,0 +1,9 @@
+citHeader("To cite package 'phom' in publications use:")
+citEntry(entry = "Manual"
+        ,title = "phom: Persistent Homology in R"
+        ,author = as.person("Andrew Tausz")
+        ,year = "2011"
+        ,note = "Version 1.0.0"
+        ,url = "http://www.stanford.edu/~atausz"
+        ,textVersion = "Andrew Tausz, phom: Persistent Homology in R, Version 1.0.0, 2011. Available at CRAN http://cran.r-project.org."
+)
