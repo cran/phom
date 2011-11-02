@@ -29,7 +29,7 @@ namespace cph
 
 		static std::vector<std::size_t> random_landmark_selection(const std::size_t range_size, const std::size_t selection_size)
 		{
-			std::vector<typename std::size_t> range;
+			std::vector<std::size_t> range;
 			for (std::size_t i = 0; i < range_size; i++)
 			{
 				range.push_back(i);
@@ -39,7 +39,7 @@ namespace cph
 
 			std::size_t filtered_selection_size = (selection_size > range_size ? range_size : selection_size);
 
-			return std::vector<typename std::size_t>(range.begin(), range.begin() + filtered_selection_size);
+			return std::vector<std::size_t>(range.begin(), range.begin() + filtered_selection_size);
 		}
 
 		template<class T>

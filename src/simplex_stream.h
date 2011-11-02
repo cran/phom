@@ -53,8 +53,8 @@ namespace cph
 
 		inline bool operator()(const B & p1, const B & p2)
 		{
-			T t1 = this->_map.at(p1);
-			T t2 = this->_map.at(p2);
+			T t1 = this->_map.find(p1)->second;
+			T t2 = this->_map.find(p2)->second;
 
 			if (t1 < t2)
 			{
@@ -105,7 +105,7 @@ namespace cph
 				return T(0);
 			}
 
-			return this->_filtration_values.at(simplex);
+			return this->_filtration_values.find(simplex)->second;
 		}
 
 		typename std::vector<B>::const_iterator begin() const

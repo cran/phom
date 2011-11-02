@@ -82,7 +82,7 @@
 \title{The \textit{phom} package: User's manual}
 \author{\href{http://www.stanford.edu/~atausz}{Andrew Tausz}}
 \date{\today}
-\subtitle{Version 1.0.0}
+\subtitle{Version 1.0.1}
 \maketitle
 
 \makeatletter
@@ -107,7 +107,7 @@ purpose of this package is to make these tools available to the statistical comm
 
 \noindent The \texttt{phom} package may be cited as follows:
 \begin{quote}
-Andrew Tausz, \textit{phom: Persistent Homology in R}, Version 1.0.0, 2011. Available at CRAN \url{http://cran.r-project.org}.
+Andrew Tausz, \textit{phom: Persistent Homology in R}, Version 1.0.1, 2011. Available at CRAN \url{http://cran.r-project.org}.
 \end{quote}
 
 \tableofcontents

@@ -85,7 +85,7 @@ namespace cph
 
 			for (typename std::set<B>::const_iterator iter = this->_marked_simplices->begin(); iter != this->_marked_simplices->end(); iter++)
 			{
-				if (this->_T->find(*iter) == this->_T->end() || this->_T->at(*iter).empty())
+				if (this->_T->find(*iter) == this->_T->end() || this->_T->find(*iter)->second.empty())
 				{
 					typename std::size_t k = (*iter).dimension();
 					if (k <= this->_max_dimension)
@@ -137,12 +137,12 @@ namespace cph
 					break;
 				}
 
-				if (this->get_coefficient(this->_T->at(sigma_i), sigma_i) == false)
+				if (this->get_coefficient(this->_T->find(sigma_i)->second, sigma_i) == false)
 				{
 					break;
 				}
 
-				this->accumulate(d, this->_T->at(sigma_i));
+				this->accumulate(d, this->_T->find(sigma_i)->second);
 			}
 
 			return d;

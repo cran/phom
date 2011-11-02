@@ -54,7 +54,7 @@ namespace cph
 			{
 				return W(0);
 			}
-			return this->_adjacency_sets.at(y)->at(x);
+			return this->_adjacency_sets.find(y)->second->find(x)->second;
 		}
 
 		std::set<V> * intersect_with_lower_neighbors(const std::set<V> & set, const V & y) const
@@ -66,7 +66,7 @@ namespace cph
 				return result;
 			}
 
-			const std::map<V, W> * map = _adjacency_sets.at(y);
+			const std::map<V, W> * map = _adjacency_sets.find(y)->second;
 
 			for (typename std::map<V, W>::const_iterator iter = map->begin(); iter != map->end(); iter++)
 			{
@@ -88,7 +88,7 @@ namespace cph
 				return result;
 			}
 
-			const std::map<V, W> * weighted_map = _adjacency_sets.at(y);
+			const std::map<V, W> * weighted_map = _adjacency_sets.find(y)->second;
 
 			typename std::map<V, W>::const_iterator iter = weighted_map->begin();
 			typename std::map<V, W>::const_iterator end = weighted_map->end();
